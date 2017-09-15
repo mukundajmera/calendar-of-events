@@ -1,0 +1,228 @@
+<?php
+
+class CALENDARIO{
+	
+	var $DiaSemana; //Day of week
+	var $Dia; //day
+	var $Mes; //month
+	var $MesEdt;
+	var $Ano; //Year
+	var $MesAnterior; //Last Month
+	var $MesPosterior; //NextMonth
+	var $AnoAnterior; //Last year
+	var $AnoPosterior; //Next Year
+	var $NumeroDiasdoMes; //Number of days in a month
+	var $PrimeiroDiaMes; //First day of month
+	var $Off;
+	var $PaginaRaiz; //Root page
+	var $LinkMes;
+	var $target;
+	var $tabela; //table
+	var $campostatus; //Status
+
+function HKAnoAtual(){
+	if ($this->Mes == 12) {
+	    $this->AnoPosterior = $this->Ano + 1;
+	    $this->AnoAnterior  = $this->Ano;
+	}
+
+	if ($this->Mes == 01) {
+	    $this->AnoPosterior = $this->Ano;
+	    $this->AnoAnterior  = $this->Ano -1;
+	}
+}
+
+		
+function HKMesAnterior($mes){
+	if ($mes <= 1) {
+		$this->MesAnterior = "12";
+		$this->MesPosterior = "02";
+		$this->AnoAnterior = $this->Ano - 1;
+		$this->AnoPosterior = $this->Ano + 1;
+	} else if ($mes >= 12) {
+	       		$this->MesAnterior = "11";
+				$this->MesPosterior = "01";
+				$this->AnoAnterior = $this->Ano;
+				$this->AnoPosterior = $this->Ano + 1;    				
+	} else {
+		$this->MesAnterior = $this->Mes -1;
+			if (strlen($this->MesAnterior) == 1) {
+			   $this->MesAnterior = "0" .$this->MesAnterior; 
+			}
+		$this->MesPosterior = $this->Mes +1;
+		if (strlen($this->MesPosterior) == 1) {
+			   $this->MesPosterior = "0" .$this->MesPosterior; 
+			}
+		$this->AnoAnterior = $this->Ano;
+		$this->AnoPosterior = $this->Ano;
+	}
+}	
+	
+	
+function CALENDARIO($dia, $mes, $ano){
+	
+	$this->Dia = $dia;
+	$this->Mes = $mes;
+	$this->Ano = $ano;
+	$this->target = "self";
+		
+	$arrDiasdaSemana = array("Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sabado");
+	$arrDiasdaSemanaAbr = array("Dom","Seg","Ter","Qua","Qui","Sex","Sab");	
+	$arrMes = array(1 => "Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro");
+	$arrMesAbr = array(1 => "Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez");
+	
+	
+		$this->DiaSemana =  date("w",mktime(0,0,0,$this->Mes,$this->Dia,$this->Ano));
+				
+		$this->NumeroDiasdoMes = date("t",mktime(0,0,0,$this->Mes,$this->Dia,$this->Ano));
+	
+		$this->PrimeiroDiaMes = date("w",mktime(0,0,0,$this->Mes,1,$this->Ano));
+
+		for ($i=1 ; $i<=$this->NumeroDiasdoMes ; $i++){
+			$final[$i-1 + $this->PrimeiroDiaMes] = date("d",mktime(0,0,0,$this->Mes,$i,$this->Ano));		
+			//echo $i -1 + $this->PrimeiroDiaMes ." -- " ."Dia : " .date("d",mktime(0,0,0,$this->Mes,$i,$this->Ano)) ."<br>";
+		}		
+		$this->Off = $final;
+	
+$this->HKEdtMes($this->Mes);
+$this->NomeMes = $arrMes[$this->MesEdt];
+$this->HKMesAnterior($this->Mes);
+$this->HKAnoAtual($this->Mes);
+
+}
+function HKSetDia($dia){
+	$this->Dia = $dia;
+}
+
+function HKSetMes($mes){
+	$this->Mes = $mes;
+}
+
+function HKSetAno($ano){
+	$this->Ano = $ano;
+}	
+
+
+function HKEdtMes($mes){
+
+	if (substr($mes,0,1) == 0) {
+		$this->MesEdt = substr($mes,1,1);	    
+	} else {
+		$this->MesEdt = $mes;
+	}
+
+
+}
+	
+	
+
+	
+function HKShow(){
+	
+	$final = $this->Off;
+	
+	echo "<table border=0 cellpadding=2 cellspacing=1>\n";
+	echo "  <tr class='TituloSemana'>\n";
+	echo "    <td><a href='?dia=01&mes=".$this->MesAnterior."&ano=".$this->AnoAnterior."'><<</a></td>\n";
+	echo "    <td colspan='5' class='TituloMes'><p align='center'>".$this->NomeMes ." " .$this->Ano ."</p></td>\n";
+	echo "    <td><a href='?dia=01&mes=".$this->MesPosterior."&ano=".$this->AnoPosterior."'>>></a></td>\n";
+	echo "  </tr>\n";
+	echo "  <tr class='TituloSemana'>\n";
+	echo "    <td>D</td>\n";
+	echo "    <td>S</td>\n";
+	echo "    <td>T</td>\n";
+	echo "    <td>Q</td>\n";
+	echo "    <td>Q</td>\n";
+	echo "    <td>S</td>\n";
+	echo "    <td>S</td>\n";
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";
+	echo "    <td ".$this->HKPrinta($final[0]);
+	echo "    <td ".$this->HKPrinta($final[1]);
+	echo "    <td ".$this->HKPrinta($final[2]);
+	echo "    <td ".$this->HKPrinta($final[3]);
+	echo "    <td ".$this->HKPrinta($final[4]);
+	echo "    <td ".$this->HKPrinta($final[5]);
+	echo "    <td ".$this->HKPrinta($final[6]);
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";;
+	echo "    <td ".$this->HKPrinta($final[7]);
+	echo "    <td ".$this->HKPrinta($final[8]);
+	echo "    <td ".$this->HKPrinta($final[9]);
+	echo "    <td ".$this->HKPrinta($final[10]);
+	echo "    <td ".$this->HKPrinta($final[11]);
+	echo "    <td ".$this->HKPrinta($final[12]);
+	echo "    <td ".$this->HKPrinta($final[13]);
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";
+	echo "    <td ".$this->HKPrinta($final[14]);
+	echo "    <td ".$this->HKPrinta($final[15]);
+	echo "    <td ".$this->HKPrinta($final[16]);
+	echo "    <td ".$this->HKPrinta($final[17]);
+	echo "    <td ".$this->HKPrinta($final[18]);
+	echo "    <td ".$this->HKPrinta($final[19]);
+	echo "    <td ".$this->HKPrinta($final[20]);
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";
+	echo "    <td ".$this->HKPrinta($final[21]);
+	echo "    <td ".$this->HKPrinta($final[22]);
+	echo "    <td ".$this->HKPrinta($final[23]);
+	echo "    <td ".$this->HKPrinta($final[24]);
+	echo "    <td ".$this->HKPrinta($final[25]);
+	echo "    <td ".$this->HKPrinta($final[26]);
+	echo "    <td ".$this->HKPrinta($final[27]);
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";
+	echo "    <td ".$this->HKPrinta($final[28]);
+	echo "    <td ".$this->HKPrinta($final[29]);
+	echo "    <td ".$this->HKPrinta($final[30]);
+	echo "    <td ".$this->HKPrinta($final[31]);
+	echo "    <td ".$this->HKPrinta($final[32]);
+	echo "    <td ".$this->HKPrinta($final[33]);
+	echo "    <td ".$this->HKPrinta($final[34]);
+	echo "  </tr>\n";
+	echo "  <tr class='CorCelula'>\n";
+	echo "    <td ".$this->HKPrinta($final[35]);
+	echo "    <td ".$this->HKPrinta($final[36]);
+	echo "    <td ".$this->HKPrinta($final[37]);
+	echo "    <td ".$this->HKPrinta($final[38]);
+	echo "    <td ".$this->HKPrinta($final[39]);
+	echo "    <td ".$this->HKPrinta($final[40]);
+	echo "    <td ".$this->HKPrinta($final[41]);
+	echo "  </tr>\n";
+	echo "</table>\n";
+
+
+
+}	
+	
+
+function HKSetaPaginaRaiz($pagina){
+	$this->PaginaRaiz = $pagina;	
+}	
+	
+	
+function HKPrinta($var){
+	if (!empty($var)) {
+		$sql = "select * from desktop_agenda where dia like '$this->Ano-$this->Mes-" .$var ."%' and usuario = '".$_SESSION['login']."' and Status = '1'";
+		$result = mysql_query($sql) or die (mysql_error());
+		$nrows = mysql_num_rows($result);
+		
+		if ($nrows > 0) {
+			//Caso tenha alguma condicao var retornar essa linha !
+			return "bgcolor='#D7EFF1' style='border: 1px solid black;'><a href='$this->PaginaRaiz&dia=$var&mes=$this->Mes&ano=$this->Ano&filtra=1'>$var</a></td>\n";
+		} else {
+			//Se não achar nada no banco de dados retorna isso!
+			return "><a href='$this->PaginaRaiz&dia=$var&mes=$this->Mes&ano=$this->Ano&filtra=1'>$var</a></td>\n";
+		}
+		    
+	} else {
+		//Se for em branco nao retorna nada !
+		return ">&nbsp;</td>\n";	
+	} 
+
+//	return "bgcolor='#D7EFF1'><a href='$this->PaginaRaiz&dia=$var&mes=$this->Mes&ano=$this->AnoPosterior&filtra=1'>$var</a></td>\n";	
+}
+
+} //Fim da classe calendario
+?>
